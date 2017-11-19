@@ -33,6 +33,7 @@ from .unfollow_util import follow_given_user_followers
 from .unfollow_util import follow_given_user_following
 from .unfollow_util import follow_user
 from .unfollow_util import follow_given_user
+from .unfollow_util import unfollow_given_user
 from .unfollow_util import load_follow_restriction
 from .unfollow_util import dump_follow_restriction
 from .unfollow_util import set_automated_followed_pool
@@ -78,6 +79,7 @@ class InstaPy:
         self.video_comments = []
 
         self.followed = 0
+        self.unfollowed = 0
         self.follow_restrict = load_follow_restriction()
         self.follow_times = 1
         self.do_follow = False
@@ -435,6 +437,28 @@ class InstaPy:
                                     acc_to_follow, str(self.follow_times)))
                 sleep(1)
 
+        return self
+
+    def unfollow_by_list(self, unfollowlist, times=1):
+        """Allows to unfollow by any scrapped list"""
+        # self.follow_times = times or 0
+        if self.aborting:
+            return self
+
+        unfollowed = 0
+
+        for acc_to_follow in unfollowlist:
+            if acc_to_follow in self.dont_include:
+                continue
+
+            unfollowed += unfollow_given_user(self.browser,
+                                            acc_to_follow,
+                                            self.follow_restrict,
+                                            self.blacklist,
+                                            self.logger)
+            self.unfollowed += unfollowed
+            self.logger.info('Unfollowed: {}'.format(str(unfollowed)))
+            unfollowed = 0
         return self
 
     def set_upper_follower_count(self, limit=None):

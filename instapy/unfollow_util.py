@@ -373,6 +373,38 @@ def unfollow_user(browser, logger):
         sleep(3)
         return 1
 
+def unfollow_given_user(browser,
+                      acc_to_unfollow,
+                      follow_restrict,
+                      blacklist,
+                      logger):
+    """Follows a given user."""
+    browser.get('https://www.instagram.com/' + acc_to_unfollow)
+    # update server calls
+    update_activity()
+    logger.info('--> {} instagram account is opened...'.format(acc_to_unfollow))
+
+    try:
+        sleep(10)
+        unfollow_button = browser.find_element_by_xpath("//*[text()='Following']")
+        unfollow_button.send_keys("\n")
+        update_activity('unfollows')
+        logger.info('---> Now unfollowing: {}'.format(acc_to_unfollow))
+        # follow_restrict[acc_to_follow] = follow_restrict.get(
+            # acc_to_follow, 0) + 1
+
+        if blacklist['enabled'] is True:
+            action = 'unfollowed'
+            add_user_to_blacklist(
+                browser, acc_to_unfollow, blacklist['campaign'], action, logger
+            )
+
+        sleep(3)
+        return 1
+    except NoSuchElementException:
+        logger.warning('---> {} is already unfollowed'.format(acc_to_unfollow))
+        sleep(3)
+        return 0
 
 def follow_given_user(browser,
                       acc_to_follow,
