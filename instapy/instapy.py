@@ -444,8 +444,18 @@ class InstaPy:
             return self
 
         unfollowed = 0
-
+        count = 0
+        has_slept = False
+        sleep_delay = 60
         for acc_to_follow in unfollowlist:
+            if count != 0 and has_slept == False and count % 10 == 0:
+                self.logger.warning('sleeping for about {}min'
+                    .format(int(sleep_delay/60)))
+                sleep(sleep_delay)
+                has_slept = True
+                continue
+
+                
             if acc_to_follow in self.dont_include:
                 continue
 
@@ -455,6 +465,8 @@ class InstaPy:
                                             self.blacklist,
                                             self.logger)
             self.unfollowed += unfollowed
+            count += 1
+            has_slept = False
             self.logger.info('Unfollowed: {}'.format(str(unfollowed)))
             unfollowed = 0
         return self
